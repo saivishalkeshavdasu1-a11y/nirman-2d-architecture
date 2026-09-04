@@ -276,6 +276,13 @@ function makePlan({ width, depth, floorHeight, storeys, houseType, plotShape, be
     u: '<path class="outer" d="M37 47h150v380h306V47h190v526H37z"/>',
     trapezoid: '<path class="outer" d="M92 47h536l55 526H37z"/>'
   };
+  const plotClipPaths = {
+    rectangle: '<rect x="37" y="47" width="646" height="526" rx="1"/>',
+    l: '<path d="M37 47h646v230H500v296H37z"/>',
+    t: '<path d="M37 47h646v150H500v376H220V197H37z"/>',
+    u: '<path d="M37 47h150v380h306V47h190v526H37z"/>',
+    trapezoid: '<path d="M92 47h536l55 526H37z"/>'
+  };
   const elevation = Array.from({ length: houseType === "multiple" ? storeys : 1 }, (_, index) => {
     const y = 495 - index * 63;
     return `<rect class="elevation-floor" x="735" y="${y}" width="145" height="58" rx="2"/><rect class="window" x="750" y="${y + 17}" width="25" height="20"/><rect class="window" x="840" y="${y + 17}" width="25" height="20"/>`;
@@ -283,7 +290,7 @@ function makePlan({ width, depth, floorHeight, storeys, houseType, plotShape, be
   const elevationHeight = houseType === "multiple" ? 63 * storeys : 63;
   const roofY = 495 - elevationHeight;
   return `<svg viewBox="0 0 920 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Generated floor plan and house elevation"><style>
-  svg{font-family:Manrope,Arial,sans-serif}.room rect{stroke:#142c2a;stroke-width:3}.room text{fill:#142c2a;font-size:13px;font-weight:800;letter-spacing:1.5px}.room text.sub{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:0}.parking,.garden{font-family:'DM Mono',monospace;fill:#557069;font-size:9px;letter-spacing:1px;font-weight:500}.outer{fill:none;stroke:#142c2a;stroke-width:7}.north{fill:#142c2a;font:500 10px 'DM Mono';letter-spacing:1px}.northline{stroke:#142c2a;stroke-width:2}.elevation-title{fill:#557069;font:500 9px 'DM Mono';letter-spacing:1px}.elevation-floor{fill:#f5d48a;stroke:#142c2a;stroke-width:3}.window{fill:#78cbd3;stroke:#142c2a;stroke-width:2}.roof{fill:#f47d67;stroke:#142c2a;stroke-width:3}</style><rect width="920" height="620" fill="#fff"/><text class="north" x="680" y="18" text-anchor="end">N</text><line class="northline" x1="676" y1="25" x2="676" y2="40"/><path d="M676 22l-4 7h8z" fill="#142c2a"/>${content}${parkingBlock}${gardenBlock}${plotBoundaries[plotShape]}<text class="elevation-title" x="807" y="18" text-anchor="middle">HOUSE ELEVATION · ${houseType === "multiple" ? storeys + " STOREYS" : "GROUND FLOOR"}</text><path class="roof" d="M725 ${roofY + 3}L807 ${roofY - 38}L889 ${roofY + 3}Z"/>${elevation}<text class="elevation-title" x="807" y="585" text-anchor="middle">${floorHeight}' FLOOR HEIGHT</text></svg>`;
+  svg{font-family:Manrope,Arial,sans-serif}.room rect{stroke:#142c2a;stroke-width:3}.room text{fill:#142c2a;font-size:13px;font-weight:800;letter-spacing:1.5px}.room text.sub{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:0}.parking,.garden{font-family:'DM Mono',monospace;fill:#557069;font-size:9px;letter-spacing:1px;font-weight:500}.outer{fill:none;stroke:#142c2a;stroke-width:7}.north{fill:#142c2a;font:500 10px 'DM Mono';letter-spacing:1px}.northline{stroke:#142c2a;stroke-width:2}.elevation-title{fill:#557069;font:500 9px 'DM Mono';letter-spacing:1px}.elevation-floor{fill:#f5d48a;stroke:#142c2a;stroke-width:3}.window{fill:#78cbd3;stroke:#142c2a;stroke-width:2}.roof{fill:#f47d67;stroke:#142c2a;stroke-width:3}</style><defs><clipPath id="plot-clip">${plotClipPaths[plotShape]}</clipPath></defs><rect width="920" height="620" fill="#fff"/><text class="north" x="680" y="18" text-anchor="end">N</text><line class="northline" x1="676" y1="25" x2="676" y2="40"/><path d="M676 22l-4 7h8z" fill="#142c2a"/><g clip-path="url(#plot-clip)">${content}${parkingBlock}${gardenBlock}</g>${plotBoundaries[plotShape]}<text class="elevation-title" x="807" y="18" text-anchor="middle">HOUSE ELEVATION · ${houseType === "multiple" ? storeys + " STOREYS" : "GROUND FLOOR"}</text><path class="roof" d="M725 ${roofY + 3}L807 ${roofY - 38}L889 ${roofY + 3}Z"/>${elevation}<text class="elevation-title" x="807" y="585" text-anchor="middle">${floorHeight}' FLOOR HEIGHT</text></svg>`;
 }
 
 function makeHouse3D({ storeys, houseType, balconies, style, plotShape, garden }) {
@@ -305,6 +312,7 @@ function render() {
   const storeys = Number($("storeys").value) || 1;
   const houseType = document.querySelector('input[name="houseType"]:checked').value;
   const plotShape = $("plotShape").value;
+  const plotShapeName = { rectangle: "rectangle", l: "L-shaped", t: "T-shaped", u: "U-shaped", trapezoid: "trapezoid" }[plotShape];
   const bedrooms = Number($("bedrooms").value);
   const bathrooms = Number($("bathrooms").value);
   const kitchens = Number($("kitchens").value);
@@ -319,12 +327,12 @@ function render() {
   $("houseStage").innerHTML = makeHouse3D({ storeys, houseType, balconies, style, plotShape, garden });
   $("houseDimensions").textContent = `${width}' × ${depth}'`;
   $("houseStoreys").textContent = houseType === "multiple" ? `${storeys} storeys · ${floorHeight}' floor height` : `Single storey · ${floorHeight}' floor height`;
-  $("plotLabel").textContent = `${width}' × ${depth}' ${plotShape}`;
+  $("plotLabel").textContent = `${width}' × ${depth}' ${plotShapeName}`;
   $("floorLabel").textContent = houseType === "multiple" ? `All ${storeys} floors + elevation` : "Ground floor + elevation";
   $("areaMetric").textContent = (Math.round(width * depth * (garden ? .7 : .78) * (houseType === "multiple" ? storeys : 1) / 10) * 10).toLocaleString();
   $("openMetric").textContent = style === "courtyard" ? "38%" : style === "linear" ? "24%" : "19%";
   $("roomsMetric").textContent = String(bedrooms + bathrooms + kitchens + halls + balconies + 1).padStart(2, "0");
-  $("designNote").textContent = `${notes[style]} The plan includes ${halls} hall, ${kitchens} kitchen and ${balconies} balcony${balconies === 1 ? "" : "s"}. The ${plotShape} plot is arranged for a ${houseType === "multiple" ? storeys + "-storey" : "single-storey"} home.`;
+  $("designNote").textContent = `${notes[style]} The plan includes ${halls} hall, ${kitchens} kitchen and ${balconies} balcony${balconies === 1 ? "" : "s"}. The ${plotShapeName} plot is arranged for a ${houseType === "multiple" ? storeys + "-storey" : "single-storey"} home.`;
 }
 
 document.querySelectorAll(".stepper button").forEach((button) => button.addEventListener("click", () => {
