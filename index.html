@@ -228,6 +228,33 @@ function room(x, y, w, h, label, fill, sub = "") {
   return `<g class="room"><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" /><text x="${x + w / 2}" y="${textY}" text-anchor="middle">${label}</text>${sub ? `<text class="sub" x="${x + w / 2}" y="${textY + 14}" text-anchor="middle">${sub}</text>` : ""}</g>`;
 }
 
+function makeShapePlan(shape, { bedrooms, kitchens, halls, balconies }) {
+  const hall = halls > 1 ? `HALL × ${halls}` : "HALL";
+  const kitchen = kitchens > 1 ? `KITCHEN × ${kitchens}` : "KITCHEN";
+  const balcony = balconies > 1 ? `BALCONY × ${balconies}` : "BALCONY";
+  const bed3 = bedrooms > 2 ? "BEDROOM 03" : "UTILITY";
+  if (shape === "l") return [
+    room(40, 50, 215, 125, hall, "#f5d48a", "14' × 12'"), room(255, 50, 210, 125, "DINING", "#f5d48a", "10' × 12'"), room(465, 50, 215, 125, kitchen, "#f5d48a", "10' × 10'"),
+    room(40, 175, 190, 150, "BEDROOM 01", "#f47d67", "11' × 12'"), room(230, 175, 145, 150, "BATH", "#bdb2ed", "5' × 8'"), room(375, 175, 160, 150, "BEDROOM 02", "#f47d67", "10' × 11'"),
+    room(40, 325, 190, 145, bed3, "#f47d67", "10' × 10'"), room(230, 325, 145, 145, "BATH", "#bdb2ed", "5' × 8'"), room(375, 325, 160, 145, balcony, "#d5ec45")
+  ].join("");
+  if (shape === "t") return [
+    room(40, 50, 160, 110, hall, "#f5d48a", "14' × 12'"), room(200, 50, 160, 110, "DINING", "#f5d48a", "10' × 12'"), room(360, 50, 160, 110, kitchen, "#f5d48a", "10' × 10'"), room(520, 50, 160, 110, balcony, "#d5ec45"),
+    room(220, 197, 145, 155, "BEDROOM 01", "#f47d67", "11' × 12'"), room(365, 197, 135, 155, "COURTYARD", "#78cbd3", "OPEN TO SKY"), room(500, 197, 180, 155, "BEDROOM 02", "#f47d67", "10' × 11'"),
+    room(220, 352, 145, 150, bed3, "#f47d67"), room(365, 352, 135, 150, "BATH", "#bdb2ed", "5' × 8'"), room(500, 352, 180, 150, "BATH + UTILITY", "#bdb2ed")
+  ].join("");
+  if (shape === "u") return [
+    room(40, 50, 150, 145, hall, "#f5d48a", "14' × 12'"), room(190, 50, 155, 145, "DINING", "#f5d48a", "10' × 12'"), room(345, 50, 150, 145, kitchen, "#f5d48a", "10' × 10'"), room(495, 50, 185, 145, balcony, "#d5ec45"),
+    room(40, 195, 150, 155, "BEDROOM 01", "#f47d67", "11' × 12'"), room(495, 195, 185, 155, "BEDROOM 02", "#f47d67", "10' × 11'"), room(40, 350, 150, 150, bed3, "#f47d67"), room(495, 350, 185, 150, "BATH + UTILITY", "#bdb2ed"), room(190, 195, 305, 305, "COURTYARD", "#78cbd3", "OPEN TO SKY")
+  ].join("");
+  if (shape === "trapezoid") return [
+    room(105, 60, 185, 120, hall, "#f5d48a", "14' × 12'"), room(290, 60, 170, 120, "DINING", "#f5d48a", "10' × 12'"), room(460, 60, 155, 120, kitchen, "#f5d48a", "10' × 10'"),
+    room(75, 180, 180, 150, "BEDROOM 01", "#f47d67", "11' × 12'"), room(255, 180, 130, 150, "BATH", "#bdb2ed", "5' × 8'"), room(385, 180, 175, 150, "COURTYARD", "#78cbd3", "OPEN TO SKY"), room(560, 180, 85, 150, "BEDROOM 02", "#f47d67", "10' × 11'"),
+    room(75, 330, 190, 145, bed3, "#f47d67"), room(265, 330, 140, 145, "BATH", "#bdb2ed", "5' × 8'"), room(405, 330, 210, 145, balcony, "#d5ec45")
+  ].join("");
+  return "";
+}
+
 function makePlan({ width, depth, floorHeight, storeys, houseType, plotShape, bedrooms, bathrooms, kitchens, halls, balconies, parking, garden, style }) {
   const houseW = 720;
   const houseH = garden ? 540 : 600;
@@ -265,6 +292,8 @@ function makePlan({ width, depth, floorHeight, storeys, houseType, plotShape, be
     content += room(240, 400, 180, 100, "BATH", "#bdb2ed", "5' × 8'");
     content += room(420, 400, 260, 100, "BALCONY", "#d5ec45", balconies > 1 ? `${balconies} balconies planned` : "");
   }
+  const shapeContent = makeShapePlan(plotShape, { bedrooms, kitchens, halls, balconies });
+  if (shapeContent) content = shapeContent;
 
   if (!parking) content = content.replace(/<text x="360" y="565"[^>]*>CAR PARKING<\/text>/, "");
   const parkingBlock = parking ? `<rect x="40" y="515" width="190" height="55" fill="#dce8e4"/><text class="parking" x="135" y="548" text-anchor="middle">CAR PARKING</text>` : "";
